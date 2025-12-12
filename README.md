@@ -87,10 +87,16 @@ sudo docker run --rm --gpus all \
 
 # Expected output
 ```
+docker run --rm --gpus all     -v $(pwd):/app     -v whisper-cache-volume:/root/.cache/whisper     whisper-local:sm61 'foi.mp4'
 --- Initialization ---
 Device: CUDA
-Media Duration: 120.50 seconds
+Media Duration: 4934.54 seconds
 Loading 'base' model...
 --- Starting Transcription ---
-58%|██████████▌        | 70.2/120.5s [00:15<00:10]
+ 73%|███████▎  | 3581.7/4934.541667s [41:18<15:36]
+
+--- Saving Files ---
+Saved: foi.txt
+Saved: foi.srt
+--- Done ---
 ```
