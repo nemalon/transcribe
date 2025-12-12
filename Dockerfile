@@ -16,6 +16,8 @@ RUN pip install --no-cache-dir \
     torch torchvision torchaudio \
     --extra-index-url ${PYTORCH_INDEX_URL}
 
+RUN pip install --no-cache-dir tqdm
+
 WORKDIR /app
 
 # The ENTRYPOINT runs the main.py script with the provided filename as an argument.

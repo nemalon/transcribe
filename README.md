@@ -14,11 +14,83 @@ The Docker build process ensures PyTorch compatibility with your specific GPU ar
 
 | GPU Architecture | CUDA Index URL (for `--build-arg`) | Example GPU |
 | :--- | :--- | :--- |
-| **sm\_61** (Pascal) | `https://download.pytorch.org/whl/cu126` (Default) | **GTX 1080** |
-| sm\_75 (Turing) | *(May use standard PyPI index)* | RTX 2070 |
+| **sm_61** (Pascal) | `https://download.pytorch.org/whl/cu126` (Default) | **GTX 1080** |
+| sm_75 (Turing) | *(May use standard PyPI index)* | RTX 2070 |
 
-Build the container image:
+### Build Command
+
+Build the container image using the default settings for GTX 1080 compatibility:
 
 ```bash
-# Build command for GTX 1080 (sm_61): Uses the default cu126 index set in the Dockerfile
 sudo docker build -t whisper-local:sm61 .
+```
+
+## 🏃 Run Requirements
+
+* **Docker Desktop:** Installed and running (using the WSL 2 backend if on Windows).
+* **NVIDIA Container Toolkit:** Installed and configured on your host system to allow Docker to access your NVIDIA GPU (required for the `--gpus all` flag).
+
+### Step 1: Create the Cache Volume
+
+Create a persistent volume so that Whisper models are downloaded only once.
+
+```bash
+docker volume create whisper-cache-volume
+```
+
+### Step 2: Run Transcription
+
+Run the transcription on a video file located in your current directory.
+
+**Syntax:**
+
+```bash
+sudo docker run --rm --gpus all \
+    -v $(pwd):/app \
+    -v whisper-cache-volume:/root/.cache/whisper \
+    whisper-local:sm61 \
+    <filename> [model_size]
+```
+
+**Parameters:**
+
+* `--rm`: Automatically remove the container when finished.
+* `--gpus all`: Pass the host GPU to the container.
+* `-v $(pwd):/app`: Mount the current directory to the container so the script can find your video.
+* `-v whisper-cache-volume:/root/.cache/whisper`: Mount the cache volume to save models.
+
+---
+
+## 📝 Examples
+
+### Example 1: Basic Run (Default Model)
+Transcribe `meeting_recording.mp4` using the default `base` model.
+
+```bash
+sudo docker run --rm --gpus all \
+    -v $(pwd):/app \
+    -v whisper-cache-volume:/root/.cache/whisper \
+    whisper-local:sm61 \
+    meeting_recording.mp4
+```
+
+### Example 2: High Accuracy (Medium Model)
+Transcribe `lecture.mp4` using the `medium` model for better accuracy.
+
+```bash
+sudo docker run --rm --gpus all \
+    -v $(pwd):/app \
+    -v whisper-cache-volume:/root/.cache/whisper \
+    whisper-local:sm61 \
+    lecture.mp4 medium
+```
+
+# Expected output
+```
+--- Initialization ---
+Device: CUDA
+Media Duration: 120.50 seconds
+Loading 'base' model...
+--- Starting Transcription ---
+58%|██████████▌        | 70.2/120.5s [00:15<00:10]
+```
